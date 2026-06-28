@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rubys-cupcakes
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: rubys-cupcakes
+  template:
+    metadata:
+      labels:
+        app: rubys-cupcakes
+    spec:
+      containers:
+      - name: rubys-cupcakes
+        image: amardeep1323/rubys-cupcakes:latest
+        ports:
+        - containerPort: 80
