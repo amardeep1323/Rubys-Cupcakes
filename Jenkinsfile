@@ -30,14 +30,24 @@ pipeline {
             }
         }
 
-        stage('Deploy to Kubernetes') {
-            steps {
-                sh '''
-                kubectl apply -f k8s/
-                kubectl rollout restart deployment/rubys-cupcakes
-                kubectl rollout status deployment/rubys-cupcakes
-                '''
-            }
-        }
+       stage('Deploy to Kubernetes') {
+    steps {
+        sh '''
+        echo "Checking Kubernetes access..."
+        kubectl get nodes
+
+        echo "Checking k8s files..."
+        ls -la k8s/
+
+        echo "Deploying..."
+        kubectl apply -f k8s/
+
+        echo "Restarting deployment..."
+        kubectl rollout restart deployment/rubys-cupcakes
+
+        echo "Checking rollout..."
+        kubectl rollout status deployment/rubys-cupcakes --timeout=120s
+        '''
     }
+}    }
 }
