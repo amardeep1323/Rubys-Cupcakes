@@ -30,24 +30,26 @@ pipeline {
             }
         }
 
-       stage('Deploy to Kubernetes') {
+      stage('Deploy to Kubernetes') {
     steps {
         sh '''
-        echo "Checking Kubernetes access..."
-        kubectl get nodes
+        kubectl apply -f K8s/
 
-        echo "Checking k8s files..."
-        ls -la k8s/
-
-        echo "Deploying..."
-        kubectl apply -f k8s/
-
-        echo "Restarting deployment..."
         kubectl rollout restart deployment/rubys-cupcakes
 
-        echo "Checking rollout..."
         kubectl rollout status deployment/rubys-cupcakes --timeout=120s
+
+        # Stop any existing port-forward process
+        pkill -f "kubectl port-forward" || true
+
+        # Start port-forward in the background
+        nohup kubectl port-forward --address 0.0.0.0 svc/rubys-cupcakes-service 8090:80 > port-forward.log 2>&1 &
+
+        sleep 5
+
+        # Verify it started
+        cat port-forward.log || true
         '''
     }
-}    }
+}  }
 }
