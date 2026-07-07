@@ -62,13 +62,14 @@ pipeline {
         sh '''
         pkill -f "kubectl port-forward.*8090:80" || true
 
-        BUILD_ID=dontKillMe nohup kubectl port-forward \
+        JENKINS_NODE_COOKIE=dontKillMe BUILD_ID=dontKillMe nohup kubectl port-forward \
         --address 0.0.0.0 svc/rubys-cupcakes-service 8090:80 \
         > /tmp/port-forward.log 2>&1 < /dev/null &
 
         sleep 5
-        cat /tmp/port-forward.log
         ps -ef | grep port-forward
+        ss -tulpn | grep 8090 || true
+        cat /tmp/port-forward.log
         '''
     }
 }
