@@ -56,5 +56,19 @@ pipeline {
         cat /tmp/port-forward.log || true
         '''
     }
+}stage('Start Port Forward') {
+    steps {
+        sh '''
+        pkill -f "kubectl port-forward.*8090:80" || true
+
+        BUILD_ID=dontKillMe nohup kubectl port-forward \
+        --address 0.0.0.0 svc/rubys-cupcakes-service 8090:80 \
+        > /tmp/port-forward.log 2>&1 < /dev/null &
+
+        sleep 5
+        cat /tmp/port-forward.log
+        ps -ef | grep port-forward
+        '''
+    }
 }}
 }
