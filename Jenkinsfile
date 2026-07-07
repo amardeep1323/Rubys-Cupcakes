@@ -56,7 +56,8 @@ pipeline {
         cat /tmp/port-forward.log || true
         '''
     }
-}stage('Start Port Forward') {
+}     
+      stage('Start Port Forward') {
     steps {
         sh '''
         pkill -f "kubectl port-forward.*8090:80" || true
@@ -70,5 +71,6 @@ pipeline {
         ps -ef | grep port-forward
         '''
     }
-}}
+}
+    }
 }
