@@ -34,9 +34,27 @@ pipeline {
     steps {
         sh '''
         kubectl apply -f K8s/
+
         kubectl rollout restart deployment/rubys-cupcakes
         kubectl rollout status deployment/rubys-cupcakes --timeout=120s
+
+        # Stop any existing port-forward
+        pkill -f "kubectl port-forward.*8090:80" || true
+
+        # Start new port-forward in background
+        nohup kubectl port-forward \
+          --address 0.0.0.0 \
+          svc/rubys-cupcakes-service 8090:80 \
+          > /tmp/port-forward.log 2>&1 < /dev/null &
+
+        sleep 5
+
+        echo "Port-forward status:"
+        pgrep -af "kubectl port-forward" || true
+
+        echo "Port-forward log:"
+        cat /tmp/port-forward.log || true
         '''
     }
-} }
+}}
 }
