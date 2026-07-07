@@ -30,17 +30,21 @@ pipeline {
             }
         }
 
-      stage('Deploy to Kubernetes') {
-    steps {
-        sh '''
-        kubectl apply -f K8s/
-        kubectl rollout restart deployment/rubys-cupcakes
-        kubectl rollout status deployment/rubys-cupcakes --timeout=120s
-        kubectl get svc
-        '''
+        stage('Deploy to Kubernetes') {
+            steps {
+                sh '''
+                kubectl apply -f K8s/
+                kubectl rollout restart deployment/rubys-cupcakes
+                kubectl rollout status deployment/rubys-cupcakes --timeout=120s
+                kubectl get svc
+                '''
+            }
+        }
     }
-}
-    }
-}
+
+    post {
+        success {
+            sh '/home/ubuntu/start-port-forward.sh'
+        }
     }
 }
